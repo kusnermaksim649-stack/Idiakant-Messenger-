@@ -1,0 +1,26 @@
+
+name: Idiakant Messenger Notifications
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/5 * * * *"
+
+jobs:
+  checker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Start
+        run: echo "Idiakant checker started"
+
+      - name: Check Firebase secret
+        env:
+          FCM_SERVICE_ACCOUNT_JSON: ${{ secrets.FCM_SERVICE_ACCOUNT_JSON }}
+        run: |
+          if [ -z "$FCM_SERVICE_ACCOUNT_JSON" ]; then
+            echo "FCM secret is not configured"
+          else
+            echo "FCM secret exists"
+          fi
+          
