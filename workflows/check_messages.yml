@@ -1,4 +1,3 @@
-
 name: Idiakant Messenger Notifications
 
 on:
@@ -6,21 +5,28 @@ on:
   schedule:
     - cron: "*/5 * * * *"
 
+permissions:
+  contents: read
+
 jobs:
-  checker:
+  send:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
-      - name: Start
-        run: echo "Idiakant checker started"
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Check Firebase secret
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install firebase-admin
+
+      - name: Send notifications
         env:
-          FCM_SERVICE_ACCOUNT_JSON: ${{ secrets.FCM_SERVICE_ACCOUNT_JSON }}
-        run: |
-          if [ -z "$FCM_SERVICE_ACCOUNT_JSON" ]; then
-            echo "FCM secret is not configured"
-          else
-            echo "FCM secret exists"
-          fi
-          
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          FIREBASE_DATABASE_URL: ${{ secrets.FIREBASE_DATABASE_URL }}
+        run: python send_notifications.py
